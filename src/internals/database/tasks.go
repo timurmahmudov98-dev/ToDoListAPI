@@ -19,15 +19,23 @@ func NewTaskStore(db *sqlx.DB) *TaskStore {
 
 var ErrNotFound = errors.New("task not found")
 
-func (s *TaskStore) GetAll() ([]models.Task, error) {
+func (s *TaskStore) GetAll(completed *bool) ([]models.Task, error) {
 	var tasks []models.Task
 
+	args := []interface{}{}
 	query := `SELECT id, title, description, completed, created_at, updated_at FROM tasks ORDER BY created_at DESC`
-	err := s.db.Select(&tasks, query)
+	if completed != nil {
+		query = `SELECT id, title, description, completed, created_at, updated_at 
+		FROM tasks WHERE completed = $1 
+		ORDER BY created_at DESC`
+		args = append(args, *completed)
+	}
+
+	err := s.db.Select(&tasks, query, args...)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return tasks, nil
 }
 

@@ -31,7 +31,18 @@ func respondWithError(w http.ResponseWriter, statuscode int, message string) {
 }
 
 func (h *Handler) GetAllTasks(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.store.GetAll()
+	var completed *bool
+
+	if param := r.URL.Query().Get("completed"); param != "" {
+		value, err := strconv.ParseBool(param)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Некорректное значение параметра 'completed'!")
+			return
+		}
+		completed = &value
+	}
+
+	tasks, err := h.store.GetAll(completed)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Произошла ошибка при получении задач!")
 		return
