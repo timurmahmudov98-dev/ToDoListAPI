@@ -24,6 +24,8 @@ func (s *TaskStore) GetAll(completed *bool) ([]models.Task, error) {
 
 	args := []interface{}{}
 	query := `SELECT id, title, description, completed, created_at, updated_at FROM tasks ORDER BY created_at DESC`
+
+	
 	if completed != nil {
 		query = `SELECT id, title, description, completed, created_at, updated_at 
 		FROM tasks WHERE completed = $1 
